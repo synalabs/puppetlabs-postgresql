@@ -485,6 +485,12 @@ Defines the version of PostGIS to install, if you install PostGIS. Defaults to t
 
 Sets the path to your `postgresql.conf` file. Default: "${confdir}/postgresql.conf".
 
+##### `data_checksums`
+
+Optional boolean to turn on data checksums during `initdb`.
+
+Default value: `undef`, which is the same as `false`.
+
 ##### `psql_path`
 
 Sets the path to the `psql` command.

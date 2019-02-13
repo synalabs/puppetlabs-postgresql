@@ -48,6 +48,7 @@ class postgresql::globals (
 
   $encoding                 = undef,
   $locale                   = undef,
+  $data_checksums           = undef,
 
   $manage_pg_hba_conf       = undef,
   $manage_pg_ident_conf     = undef,
