@@ -29,24 +29,29 @@ Puppet::Type.type(:postgresql_psql).provide(:ruby) do
 
   private
 
-  def get_environment
-    environment = resource[:connect_settings] || {}
-    if envlist = resource[:environment]
-      envlist = [envlist] unless envlist.is_a? Array
-      envlist.each do |setting|
-        if setting =~ /^(\w+)=((.|\n)+)$/
-          env_name = $1
-          value = $2
-          if environment.include?(env_name) || environment.include?(env_name.to_sym)
+  def get_environment # rubocop:disable Style/AccessorMethodName : Refactor does not work correctly
+    environment = (resource[:connect_settings] || {}).dup
+    envlist = resource[:environment]
+    return environment unless envlist
+
+    envlist = [envlist] unless envlist.is_a? Array
+    envlist.each do |setting|
+      if setting =~ %r{^(\w+)=((.|\n)+)$}
+        env_name = Regexp.last_match(1)
+        value = Regexp.last_match(2)
+        if environment.include?(env_name) || environment.include?(env_name.to_sym)
+          if env_name == 'NEWPGPASSWD'
+            warning "Overriding environment setting '#{env_name}' with '****'"
+          else
             warning "Overriding environment setting '#{env_name}' with '#{value}'"
           end
-          environment[env_name] = value
-        else
-          warning "Cannot understand environment setting #{setting.inspect}"
         end
+        environment[env_name] = value
+      else
+        warning "Cannot understand environment setting #{setting.inspect}"
       end
     end
-    return environment
+    environment
   end
 
   def run_command(command, user, group, environment)
